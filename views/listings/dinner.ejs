@@ -1,0 +1,100 @@
+<% layout("layouts/boilerplate") %>
+<body>
+
+    <!-- Menu container -->
+    <div class="container">
+        <h2 style="color: white;">Dinner Menu</h2>
+        <div class="row">
+
+            <% items.forEach(function(item) { %>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <img class="card-img-top" src="<%= item.image %>" alt="<%= item.title %>">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= item.title %></h5>
+                            <p class="card-text">Price: ₹<%= item.price %></p>
+                            
+                              <!-- Quantity Control -->
+                              <div class="quantity-control" style="display: flex; align-items: center;">
+                                <button class="btn btn-primary decrease-quantity">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1" style="width: 50px; text-align: center; margin: 0 5px;" />
+                                <button class="btn btn-primary increase-quantity">+</button>
+                                
+                                <!-- Add gap between the + button and Add to Cart button -->
+                                <span style="margin-left: 10px;"> <!-- Adjust margin value as needed -->
+                                    <button class="btn btn-primary add-to-cart" data-item="<%= item.title %>" data-price="<%= item.price %>">Add to Cart</button>
+                                </span>
+                            </div>
+                            
+
+                            
+                            <!-- Admin Delete Button -->
+                            <% if (isAdmin) { %>  <!-- Check if the user is an admin -->
+                              <form method="POST" action="/listings/<%= item._id %>?_method=DELETE" style="display: inline;">
+                                <button class="btn btn-dark">Delete</button>
+                              </form>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+
+        </div>
+    </div>
+
+    <!-- Script to handle adding to cart -->
+    <script>
+       const isLoggedIn = <%= currUser ? 'true' : 'false' %>; // Check if user is logged in
+
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function () {
+        if (!isLoggedIn) { // If not logged in, alert and redirect to login page
+            alert("Please log in to add items to the cart.");
+            window.location.href = "/login";
+            return;
+        }
+
+        // Add to cart logic
+        const item = this.getAttribute('data-item');
+        const price = parseFloat(this.getAttribute('data-price'));
+        const quantityInput = this.previousElementSibling.querySelector('.quantity-input');
+        const quantity = parseInt(quantityInput.value);
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItemIndex = cart.findIndex(cartItem => cartItem.item === item);
+
+        if (existingItemIndex > -1) {
+            // If item already in cart, update the quantity
+            cart[existingItemIndex].quantity += quantity;
+        } else {
+            // Add new item to cart with its quantity
+            cart.push({ item, price, quantity });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert(quantity + " " + item + "(s) have been added to the cart.");
+    });
+});
+
+// Add event listeners for quantity controls
+document.querySelectorAll('.quantity-control').forEach(control => {
+    const decreaseButton = control.querySelector('.decrease-quantity');
+    const increaseButton = control.querySelector('.increase-quantity');
+    const quantityInput = control.querySelector('.quantity-input');
+
+    decreaseButton.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+        }
+    });
+
+    increaseButton.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value);
+        quantityInput.value = currentValue + 1;
+    });
+});
+    </script>
+
+</body>
+

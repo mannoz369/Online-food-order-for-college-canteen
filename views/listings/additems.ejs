@@ -1,0 +1,155 @@
+<% layout("layouts/boilerplate")%>
+<style>
+    /* Body style to center form */
+    /* body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+    } */
+
+    /* Form container style */
+    .form-container {
+        background-color: #fff;
+        padding: 20px 40px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+        margin-left: 35rem; /* Move form to the center */
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    /* Input field and label styles */
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Button style */
+    button {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #007bff;
+        
+    }
+
+    /* Meal selection button styles */
+    .meal-button {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: #333;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+        padding: 10px;
+    }
+
+    .meal-button.selected {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
+    /* Adjusts spacing for small screens */
+    @media (max-width: 600px) {
+        .form-container {
+            padding: 20px;
+        }
+    }
+</style>
+
+<body>
+    <div class="form-container">
+        <h2>Enter Your Item</h2>
+        <form id="appointment-form" class="needs-validation" method="POST" action="/listings" novalidate>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="listing[title]" required>
+
+            <label for="description">Category:</label>
+            <div id="meal-selection">
+                <button type="button" class="meal-button" data-meal="Breakfast">Breakfast</button>
+                <button type="button" class="meal-button" data-meal="Lunch">Lunch</button>
+                <button type="button" class="meal-button" data-meal="Dinner">Dinner</button>
+            </div>
+            <input type="hidden" id="selected-meal" name="listing[description]" required>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="listing[price]" min="0" required>
+
+            <label for="image">Image:</label>
+            <input type="file" id="image" name="listing[image]">
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript for custom form validation and meal selection
+        (function () {
+            'use strict';
+            const mealButtons = document.querySelectorAll('.meal-button');
+            const selectedMealInput = document.getElementById('selected-meal');
+
+            mealButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    mealButtons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    selectedMealInput.value = button.getAttribute('data-meal');
+                });
+            });
+
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false || !selectedMealInput.value) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</body>

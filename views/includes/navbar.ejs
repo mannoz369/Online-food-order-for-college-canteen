@@ -1,0 +1,75 @@
+<nav class="navbar navbar-expand-lg custom_nav-container">
+  <a class="navbar-brand" href="/listings">
+    <span>
+      Canteen
+    </span>
+  </a>
+  <div class="" id="">
+    <% if(!currUser) {%>
+      <span style="margin-left: 1rem;"></span>
+      
+      <div class="User_option">
+        <a href="/login">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          <span>Login</span>
+        </a>
+      
+          <a href="/signup">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            <span>SignUp</span>
+        </a>
+      <div class="cart_icon ml-auto">
+        <a href="/cart">
+          <i class="fas fa-shopping-cart" style="font-size: 30px;"></i>
+        </a>
+      </div>
+    <% } %>
+    
+    <% if(isAdmin) {%>
+     
+      <span style="margin-left: 1rem;"></span>
+      <div class="User_option">
+        <a href="/add">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Items</span>
+        </a>
+        <a href="/adminorders">
+          
+          <span>All Orders</span>
+        </a>
+        
+      <div class="cart_icon ml-auto">
+        <a href="/logout">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    <% } %>
+    <% if(currUser && !isAdmin) {%>
+      <span style="margin-left: 1rem;"></span>
+      <div class="User_option">
+      <div class="cart_icon ml-auto">
+        <a href="/logout">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          <span>Logout</span>
+        </a>
+        <a href="/orders">
+          
+          <span>Your Orders</span>
+        </a>
+      </div>
+      <div class="cart_icon ml-auto">
+        <a href="/cart">
+          <i class="fas fa-shopping-cart" style="font-size: 30px;"></i>
+        </a>
+      </div>
+    <% } %>
+
+     
+   
+     
+      
+    </div>
+   
+  </div>
+</nav>

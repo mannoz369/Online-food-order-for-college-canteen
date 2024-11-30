@@ -1,0 +1,143 @@
+<% layout("layouts/boilerplate") %>
+<header>
+  <style>
+    .button-container {
+      display: flex;
+      gap: 10px;
+    }
+    .remove-item {
+      margin-left: 10rem; /* Adjust the value as needed */
+    }
+    .notification {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      bottom: 20px; /* Position from the bottom */
+      left: 20px; /* Position from the left */
+      background-color: rgba(0, 0, 0, 0.8); /* Black background with some transparency */
+      color: white; /* White text */
+      padding: 15px; /* Padding */
+      border-radius: 5px; /* Rounded corners */
+      z-index: 1000; /* Sit on top */
+      transition: opacity 0.5s ease; /* Smooth transition */
+      opacity: 0; /* Initially hidden */
+    }
+
+    .notification.show {
+      display: block; /* Show the notification */
+      opacity: 1; /* Fully visible */
+    }
+  </style>
+</header>
+<body>
+  <!-- Notification Structure -->
+  <div id="cart-notification" class="notification">
+    <p>Check your cart items before proceeding to checkout!</p>
+  </div>
+
+  <div class="container">
+    <h2>Your Cart</h2>
+    <ul id="cart-items" class="list-group mb-3"></ul>
+    <h3>Total: ₹<span id="total-price">0</span></h3>
+
+    <!-- Phone number input field -->
+    <input type="tel" id="phone-number" class="form-control phone-input" placeholder="Enter your phone number" required>
+    <br>
+    <div class="button-container">
+      <button class="btn btn-success" id="checkout-button">Checkout</button>
+      <button class="btn btn-danger" id="cancel-button">Cancel</button>
+    </div>
+  </div>
+</body>
+<script>
+  const userId = "<%= currUser ? currUser._id : '' %>";
+  console.log("User ID:", userId);
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const cartItems = document.getElementById('cart-items');
+  let totalPrice = 0;
+  // Display cart items in your cart page
+
+cart.forEach(({ item, price, quantity }, index) => {
+    const li = document.createElement('li');
+    li.classList.add('list-group-item');
+    li.innerHTML = `${item} - ₹${price} x ${quantity} <button class="btn btn-danger btn-sm remove-item" onclick="removeItem(${index})" style="margin-left: 10px;">X</button>`;
+    cartItems.appendChild(li);
+    totalPrice += price * quantity; // Adjust total price calculation
+});
+
+  // Display cart items
+  // cart.forEach(({ item, price }, index) => {
+  //   const li = document.createElement('li');
+  //   li.classList.add('list-group-item');
+  //   li.innerHTML = `${item} - ₹${price} <button class="btn btn-danger btn-sm remove-item" onclick="removeItem(${index})" style="margin-left: 10px;">X</button>`;
+  //   cartItems.appendChild(li);
+  //   totalPrice += price;
+  // });
+
+  // Update total price display
+  document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+
+  // Checkout button click event
+  document.getElementById('checkout-button').addEventListener('click', async function () {
+    const phoneNumber = document.getElementById('phone-number').value;
+
+    if (!phoneNumber) {
+      alert('Please enter a valid phone number.');
+      return;
+    }
+
+    const itemsPurchased = cart.map(item => ({ title: item.item, price: item.price, quantity: 1 }));
+    const orderDetails = {
+      user: userId,
+      items: itemsPurchased,
+      totalAmount: totalPrice,
+      phone: phoneNumber,
+      paymentId: "TEST_PAYMENT_ID"
+    };
+
+    const res = await fetch('/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderDetails)
+    });
+
+    if (!res.ok) {
+      alert('There was an issue placing your order. Please try again.');
+      return;
+    }
+
+    const responseData = await res.json();
+    console.log("Order stored in database:", responseData);
+
+    localStorage.removeItem('cart');
+    location.reload();
+  });
+ 
+  // Cancel button click event
+  document.getElementById('cancel-button').addEventListener('click', function () {
+    localStorage.removeItem('cart');
+    location.reload(); // Clear the cart
+    window.location.href = '/listings'; // Redirect to the homepage
+  });
+
+  // Function to remove an item from the cart
+  function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    location.reload();
+  }
+
+  // Get notification element
+  const notification = document.getElementById('cart-notification');
+
+  // Show the notification when the cart page loads
+  window.onload = function() {
+    notification.classList.add('show');
+
+    // Hide the notification after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 3000); // Duration to display the notification
+  };
+</script>
+</body>

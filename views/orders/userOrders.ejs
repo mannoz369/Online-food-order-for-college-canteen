@@ -1,0 +1,35 @@
+<% layout("layouts/boilerplate") %>
+<body>
+
+    <!-- Orders container -->
+    <div class="container">
+        <h2>Your Orders</h2>
+        <div class="row">
+
+            <% if (orders.length === 0) { %>
+                <p>No orders found.</p>
+            <% } else { %>
+                <% orders.forEach(function(order) { %>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Order ID: <%= order._id %></h5>
+                                <p class="card-text">Phone: <%= order.phone %></p>
+                                <p class="card-text">Total Amount: ₹<%= order.totalAmount %></p>
+                                <p class="card-text">Date: <%= new Date(order.createdAt).toLocaleDateString() %></p>
+                                <h6>Items:</h6>
+                                <ul>
+                                    <% order.items.forEach(function(item) { %>
+                                        <li><%= item.title %> - ₹<%= item.price %> x <%= item.quantity %></li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+
+        </div>
+    </div>
+
+</body>
